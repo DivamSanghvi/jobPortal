@@ -117,3 +117,152 @@ export const loginUser = asyncHandler(async(req,res)=>{
         )
     )
 })
+
+export const logout = asyncHandler(async(req,res)=>{
+    await User.findByIdAndUpdate(
+        req.user._id,
+        {
+            $unset : {
+                refreshToken: 1,
+            }
+        },
+        {
+            new: true,
+        }
+    )
+
+    const options = {
+        httpOnly : true,
+        secure: true
+    }
+
+    return res
+    .status(201)
+    .clearCookie("accessToken",options)
+    .clearCookie("refreshToken",options)
+    .json(
+        new ApiResponse(200,{},"User logged out successfully")
+    )
+})
+
+export const updateProfile = asyncHandler(async (req, res) => {
+    const { fullname, email, phoneNumber, bio, skills } = req.body;
+
+    const resumeLocalPath = req.files?.resume && req.files.resume.length > 0 
+        ? req.files.resume[0].path 
+        : null;
+
+    const profileLocalPath = req.files?.profile && req.files.profile.length > 0 
+    ? req.files.profile[0].path 
+    : null;
+
+    const profile = await uploadOnCloudinary(profileLocalPath);
+    const resume = resumeLocalPath ? await uploadOnCloudinary(resumeLocalPath) : null;
+    const userId = req.user._id;
+    const user = await User.findById(userId);
+
+    if (!user) {
+        throw new ApiError(400, "User not found");
+    }
+
+    // Update basic fields
+    if (fullname) user.fullname = fullname;
+    if (email) user.email = email;
+    if (phoneNumber) user.phoneNumber = phoneNumber;
+
+    // Update profile fields
+    const profileUpdates = {};
+    if (bio) profileUpdates.bio = bio;
+    if (skills) profileUpdates.skills = skills.split(",");
+    if (resume) {
+        profileUpdates.resume = resume.url;
+        profileUpdates.resumeOriginalName = "resume";
+    }
+    if(profile){
+        profileUpdates.profilePhoto = profile.url
+    }
+    
+    // Apply profile updates if any
+    if (Object.keys(profileUpdates).length > 0) {
+        user.profile = { ...user.profile.toObject(), ...profileUpdates };
+    }
+
+    await user.save();
+
+    const loggedInUser = await User.findById(user._id).select("-password -refreshtoken");
+
+    return res.status(200).json(
+        new ApiResponse(
+            200,
+            loggedInUser,
+            "Updates happened successfully"
+        )
+    );
+});
+
+export const refreshAccessToken = asyncHandler(async (req, res) => {
+    const incomingRefreshToken = req.cookies.refreshToken || req.body.refreshToken
+
+    if (!incomingRefreshToken) {
+        throw new ApiError(401, "unauthorized request")
+    }
+
+    try {
+        const decodedToken = jwt.verify(
+            incomingRefreshToken,
+            process.env.REFRESH_TOKEN_SECRET
+        )
+    
+        const user = await User.findById(decodedToken?._id)
+    
+        if (!user) {
+            throw new ApiError(401, "Invalid refresh token")
+        }
+    
+        if (incomingRefreshToken !== user?.refreshToken) {
+            throw new ApiError(401, "Refresh token is expired or used")
+            
+        }
+    
+        const options = {
+            httpOnly: true,
+            secure: true
+        }
+    
+        const {accessToken, newRefreshToken} = await generateAccessAndRefereshTokens(user._id)
+    
+        return res
+        .status(200)
+        .cookie("accessToken", accessToken, options)
+        .cookie("refreshToken", newRefreshToken, options)
+        .json(
+            new ApiResponse(
+                200, 
+                {accessToken, refreshToken: newRefreshToken},
+                "Access token refreshed"
+            )
+        )
+    } catch (error) {
+        throw new ApiError(401, error?.message || "Invalid refresh token")
+    }
+
+})
+
+export const updatePassword = asyncHandler(async (req, res) => {
+    const { oldPassword, newPassword } = req.body;
+    
+    const user = await User.findById(req.user._id);
+    if (!user) {
+        throw new ApiError(404, "User not found");
+    }
+
+    const isPasswordValid = await user.isPasswordCorrect(oldPassword);
+    if (!isPasswordValid) {
+        throw new ApiError(400, "Invalid old password");
+    }
+
+    user.password = newPassword;
+    await user.save({ validateBeforeSave: false });
+
+    return res.status(200).json(new ApiResponse(200, {}, "Password changed successfully"));
+});
