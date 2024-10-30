@@ -2,6 +2,7 @@ import express from "express"
 import cors from "cors"
 import cookieParser from "cookie-parser"
 import userRoute from "./routes/user.routes.js"
+import companyRoute from "./routes/company.routes.js"
 const app = express()
 
 app.use(cors({
@@ -15,5 +16,5 @@ app.use(express.static("public"))
 app.use(cookieParser())
 
 app.use("/api/v1/user", userRoute);
-
+app.use("/api/v1/company",companyRoute);
 export {app}
