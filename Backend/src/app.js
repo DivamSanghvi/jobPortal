@@ -4,6 +4,8 @@ import cookieParser from "cookie-parser"
 import userRoute from "./routes/user.routes.js"
 import companyRoute from "./routes/company.routes.js"
 import jobRoute from "./routes/job.routes.js"
+import applicationRoute from "./routes/application.routes.js"
+
 const app = express()
 
 app.use(cors({
@@ -19,5 +21,6 @@ app.use(cookieParser())
 app.use("/api/v1/user", userRoute);
 app.use("/api/v1/company",companyRoute);
 app.use("/api/v1/job",jobRoute);
+app.use("/api/v1/application",applicationRoute);
 
 export {app}
