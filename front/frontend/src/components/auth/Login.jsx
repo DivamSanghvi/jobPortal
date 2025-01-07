@@ -9,6 +9,8 @@ import axios from 'axios'
 import { USER_API_END_POINT } from '@/utils/constant'
 import { toast } from 'sonner'
 import { Loader2 } from 'lucide-react'
+import { useDispatch, useSelector } from 'react-redux'
+import { setLoading } from '@/redux/authslice'
 
 const Login = () => {
     const [input, setInput] = useState({
@@ -16,9 +18,10 @@ const Login = () => {
         password: "",
         role: "",
     });
-    const loading=false
+    const {loading }= useSelector(store=>store.auth);
     const user=false
     const navigate = useNavigate()
+    const dispatch = useDispatch()
     const changeEventHandler = (e) => {
         setInput({ ...input, [e.target.name]: e.target.value });
     }
@@ -26,7 +29,7 @@ const Login = () => {
     const submitHandler = async (e) => {
         e.preventDefault();
         try {
-            
+            dispatch(setLoading(true))
             const res = await axios.post(`${USER_API_END_POINT}/login`, input, {
                 headers: {
                     "Content-Type": "application/json"
@@ -42,7 +45,7 @@ const Login = () => {
             console.log(error);
             toast.error(error.response.data.message);
         } finally {
-            
+            dispatch(setLoading(false))
         }
     }
     useEffect(()=>{
