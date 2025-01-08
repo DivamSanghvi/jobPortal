@@ -8,6 +8,7 @@ import Home from './components/Home'
 import Jobs from './components/Jobs'
 import Browse from './components/Browse'
 import Profile from './components/profile'
+import JobDescription from './components/JobDescription'
 const appRouter = createBrowserRouter([
   {
     path:'/',
@@ -32,6 +33,10 @@ const appRouter = createBrowserRouter([
   {
     path: '/profile',
     element: <Profile/>
+  },
+  {
+    path: '/job-description/:id',
+    element: <JobDescription/>
   }
 ])
 

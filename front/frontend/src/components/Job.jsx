@@ -3,7 +3,7 @@
 import React from 'react'
 import { motion } from 'framer-motion'
 import { MapPin, Bookmark } from 'lucide-react'
-
+import { Link } from 'react-router-dom'
 const JobCard = ({
   Job
 }) => {
@@ -57,6 +57,7 @@ const JobCard = ({
       </div>
 
       <div className="flex justify-between items-center">
+        <Link to="/job-description/12345">
         <motion.button
           className="bg-blue-500 text-white px-6 py-2 rounded-full font-semibold"
           whileHover={{ scale: 1.05 }}
@@ -65,6 +66,7 @@ const JobCard = ({
         >
           Details
         </motion.button>
+        </Link>
         <motion.button
           className="flex items-center text-gray-600 hover:text-blue-500"
           whileHover={{ scale: 1.05 }}

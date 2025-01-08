@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Navbar from './shared/Navbar'
 import { Avatar, AvatarImage } from './ui/avatar'
 import { Button } from './ui/button'
@@ -15,6 +15,10 @@ const isResume = true;
 const Profile = () => {
     const [open, setOpen] = useState(false);
     const {user} = useSelector(store=>store.auth);
+    
+    useEffect(()=>{
+        console.log(open)
+    }),[]
 
     return (
         <div>
