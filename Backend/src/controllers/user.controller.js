@@ -118,32 +118,35 @@ export const loginUser = asyncHandler(async(req,res)=>{
     )
 })
 
-export const logout = asyncHandler(async(req,res)=>{
+export const logout = asyncHandler(async (req, res) => {
     await User.findByIdAndUpdate(
-        req.user._id,
-        {
-            $unset : {
-                refreshToken: 1, //removes this field
-            }
+      req.user._id,
+      {
+        $unset: {
+          refreshToken: 1, // removes this field
         },
-        {
-            new: true,
-        }
-    )
-
+      },
+      {
+        new: true,
+      }
+    );
+  
     const options = {
-        httpOnly : true,
-        secure: true
-    }
-
+      httpOnly: true,
+      secure: true,
+      sameSite: "None",
+    };
+  
     return res
-    .status(201)
-    .clearCookie("accessToken",options)
-    .clearCookie("refreshToken",options)
-    .json(
-        new ApiResponse(200,{},"User logged out successfully")
-    )
-})
+      .status(200) // Use 200 for success
+      .clearCookie("accessToken", options)
+      .clearCookie("refreshToken", options)
+      .json({
+        success: true, // Add this field for frontend compatibility
+        message: "User logged out successfully",
+      });
+  });
+  
 
 export const updateProfile = asyncHandler(async (req, res) => {
     const { fullname, email, phoneNumber, bio, skills } = req.body;
