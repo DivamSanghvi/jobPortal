@@ -4,13 +4,41 @@ import { PopoverContent } from "@radix-ui/react-popover";
 import { Button } from "../ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { LogOut, User2 } from "lucide-react";
-import { Link } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { Link, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { USER_API_END_POINT } from "@/utils/constant";
+import { setUser } from "@/redux/authslice";
+import { toast } from "sonner";
+import axios from "axios";
 
 const Navbar = () => {
   const { user } = useSelector((store) => store.auth); // Assuming `store.auth` has `user`
+  const dispatch = useDispatch();
+  const navigate = useNavigate()
 
-  return (
+  const logoutHandler = async () => {
+    try {
+      const res = await axios.post(
+        `${USER_API_END_POINT}/logout`,
+        {},
+        {
+          withCredentials: true,
+        }
+      );
+  
+      if (res.data.success) {
+        dispatch(setUser(null));
+        navigate("/");
+        toast.success(res.data.message); // Use `res.data.message` for the toast
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error(error.response?.data?.message || "An error occurred");
+    }
+  };
+  
+
+  return ( 
     <div>
       <div className="bg-white">
         <div className="flex items-center justify-between mx-auto max-w-7xl h-16">
@@ -93,7 +121,7 @@ const Navbar = () => {
                       </div>
                       <div className="flex w-fit items-center gap-2 cursor-pointer">
                         <LogOut />
-                        <Button variant="link">Logout</Button>
+                        <Button variant="link" onClick={logoutHandler}>Logout</Button>
                       </div>
                     </div>
                   </div>
