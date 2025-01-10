@@ -10,7 +10,7 @@ const LatestJobCards = ({ job }) => {
     const jobLocation = job.location || 'Location not available'; // Handle missing data
 
     return (
-        <div onClick={() => navigate(`/description/${job._id}`)} className='p-5 rounded-md shadow-xl bg-white border border-gray-100 cursor-pointer'>
+        <div onClick={() => navigate(`/job-description/${job._id}`)} className='p-5 rounded-md shadow-xl bg-white border border-gray-100 cursor-pointer'>
             <div>
                 <h1 className='font-medium text-lg'>{companyName}</h1> {/* Handle nested property */}
                 <p className='text-sm text-gray-500'>{jobLocation}</p> {/* Render fallback text if location is missing */}
