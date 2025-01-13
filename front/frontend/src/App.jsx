@@ -15,6 +15,7 @@ import CompanySetup from './components/admin/CompanySetup'
 import AdminJobs from './components/admin/AdminJobs'
 import PostJob from './components/admin/PostJob'
 import ResumeUpload from './components/ResumeUpload'
+import Test from './components/Test/Test'
 
 
 const appRouter = createBrowserRouter([
@@ -69,6 +70,10 @@ const appRouter = createBrowserRouter([
   {
     path: "resume/upload",
     element: <ResumeUpload/>
+  },
+  {
+    path: "/test",
+    element: <Test/>
   }
 ])
 
